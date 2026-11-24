@@ -1,0 +1,37 @@
+openapi: 3.0.1
+info:
+  title: Execution API
+  version: 1.0.0
+paths:
+  /payment/initiate:
+    post:
+      summary: Initiate a payment
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          description: Also used as the Correlation-Id in the payment status event.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentInitiationRequest'
+      responses:
+        '202':
+          description: Payment initiation accepted
+        '422':
+          description: Payment initiation rejected
+components:
+  schemas:
+    PaymentInitiationRequest:
+      type: object
+      required:
+        - price
+      properties:
+        price:
+          type: number
+          format: double
+          description: Total amount to collect in INR.

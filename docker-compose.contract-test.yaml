@@ -1,0 +1,29 @@
+services:
+  order-api:
+    build: .
+    image: specmatic-supporting-interface-order-api:contract-test
+    environment:
+      PAYMENT_TIMEOUT_SECONDS: "1"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/docs', timeout=1)"
+      interval: 2s
+      timeout: 2s
+      retries: 30
+      start_period: 3s
+
+  specmatic:
+    image: ${SPECMATIC_IMAGE:-specmatic/enterprise:latest}
+    command: ["run-suite"]
+    network_mode: service:order-api
+    volumes:
+      - ./build:/usr/src/app/build
+      - ./specmatic.yaml:/usr/src/app/specmatic.yaml:ro
+      - ./specifications:/usr/src/app/specifications:ro
+      - "${SPECMATIC_LICENSE_DIR:?Set SPECMATIC_LICENSE_DIR to the Enterprise license directory}:/root/.specmatic:ro"
+    depends_on:
+      order-api:
+        condition: service_healthy

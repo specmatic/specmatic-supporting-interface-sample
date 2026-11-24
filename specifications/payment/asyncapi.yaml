@@ -1,0 +1,51 @@
+asyncapi: 3.0.0
+info:
+  title: Payment Status API
+  version: 1.0.0
+servers:
+  kafka-server:
+    host: 'localhost:9092'
+    protocol: kafka
+channels:
+  payment-status:
+    address: payment-status
+    messages:
+      paymentStatus:
+        $ref: '#/components/messages/paymentStatus'
+operations:
+  publishPaymentStatus:
+    action: send
+    channel:
+      $ref: '#/channels/payment-status'
+    messages:
+      - $ref: '#/channels/payment-status/messages/paymentStatus'
+components:
+  messages:
+    paymentStatus:
+      correlationId:
+        location: $message.header#/Correlation-Id
+      headers:
+        type: object
+        required:
+          - Correlation-Id
+        properties:
+          Correlation-Id:
+            type: string
+            description: Echoes the payment request Idempotency-Key to correlate this status with the originating order.
+      payload:
+        type: object
+        required:
+          - paymentId
+          - status
+        properties:
+          paymentId:
+            type: string
+            description: Identifier assigned to the created payment.
+          status:
+            type: string
+            enum:
+              - success
+              - failed
+          failureReason:
+            type: string
+            description: Explanation of why the payment failed, when applicable.

@@ -1,0 +1,106 @@
+asyncapi: 3.0.0
+info:
+  title: Order API
+  version: 1.0.0
+servers:
+  kafka-server:
+    host: 'localhost:9092'
+    protocol: kafka
+channels:
+  payment-status:
+    address: payment-status
+    messages:
+      paymentStatus:
+        $ref: '#/components/messages/paymentStatus'
+  order-status:
+    address: order-status
+    messages:
+      orderStatus:
+        $ref: '#/components/messages/orderStatus'
+operations:
+  receivePaymentStatus:
+    action: receive
+    channel:
+      $ref: '#/channels/payment-status'
+    messages:
+      - $ref: '#/channels/payment-status/messages/paymentStatus'
+    reply:
+      channel:
+        $ref: '#/channels/order-status'
+      messages:
+        - $ref: '#/channels/order-status/messages/orderStatus'
+components:
+  messages:
+    paymentStatus:
+      correlationId:
+        location: $message.header#/Correlation-Id
+      headers:
+        type: object
+        required:
+          - Correlation-Id
+        properties:
+          Correlation-Id:
+            type: string
+            description: Identifier correlating this payment status with the order.
+      payload:
+        type: object
+        required:
+          - paymentId
+          - status
+        properties:
+          paymentId:
+            type: string
+            description: Identifier assigned to the created payment.
+          status:
+            type: string
+            enum:
+              - success
+              - failed
+          failureReason:
+            type: string
+            description: Explanation of why the payment failed, when applicable.
+    orderStatus:
+      correlationId:
+        location: $message.header#/Correlation-Id
+      headers:
+        type: object
+        required:
+          - Correlation-Id
+        properties:
+          Correlation-Id:
+            type: string
+            description: Identifier correlating this order status with its payment status.
+      payload:
+        type: object
+        required:
+          - orderId
+          - paymentId
+          - status
+          - productId
+          - quantity
+          - price
+        properties:
+          orderId:
+            type: string
+            description: Identifier assigned to the created order.
+          paymentId:
+            type: string
+            description: Identifier assigned to the created payment.
+          productId:
+            type: string
+            description: Identifier assigned to the product ordered.
+          quantity:
+            type: integer
+            description: Quantity of the product ordered.
+          price:
+            type: number
+            description: Total price in INR, calculated as unit price multiplied by quantity.
+          status:
+            type: string
+            description: Whether the order completed successfully or failed.
+            enum:
+              - success
+              - failed
+          failureReason:
+            type: string
+            description: Explanation of why the order failed; present when status is failed.

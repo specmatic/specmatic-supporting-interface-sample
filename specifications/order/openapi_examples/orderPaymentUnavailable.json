@@ -1,0 +1,24 @@
+{
+  "http-request": {
+    "path": "/orders",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "Idempotency-Key": "payment-timeout"
+    },
+    "body": {
+      "productId": 10,
+      "quantity": 1
+    }
+  },
+  "http-response": {
+    "status": 503,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "code": "PaymentServiceUnavailable",
+      "message": "Payment service is unavailable"
+    }
+  }
+}

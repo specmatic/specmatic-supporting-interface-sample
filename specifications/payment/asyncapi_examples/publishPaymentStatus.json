@@ -1,0 +1,10 @@
+{
+  "id": "publishPaymentStatusExample",
+  "operationId" : "publishPaymentStatus",
+  "name": "send success to payment-status channel",
+  "send" : {
+    "topic" : "payment-status",
+    "headers" : { "Correlation-Id" : "SHOULD-BE-SUBSTITUTED" },
+    "payload" : { "paymentId": "payment-123", "status" : "success" }
+  }
+}

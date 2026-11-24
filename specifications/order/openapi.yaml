@@ -1,0 +1,83 @@
+openapi: 3.0.1
+info:
+  title: Order API
+  version: 1.0.0
+paths:
+  /orders:
+    post:
+      summary: Create an order
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          description: Reuses the accepted order and correlation ID when a request is retried with the same key.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '202':
+          description: Order accepted
+          headers:
+            Correlation-Id:
+              description: payment-order-{Idempotency-Key}, used to correlate the payment and asynchronous order processing.
+              required: true
+              schema:
+                type: string
+        '400':
+          description: The request is invalid or the quantity is less than one
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: The requested product does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '502':
+          description: The payment service did not accept the initiation request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: The payment service is unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: An unexpected order service error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    CreateOrderRequest:
+      type: object
+      required:
+        - productId
+        - quantity
+      properties:
+        productId:
+          type: integer
+          format: int64
+        quantity:
+          type: integer
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string

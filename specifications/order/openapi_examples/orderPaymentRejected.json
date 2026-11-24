@@ -1,0 +1,24 @@
+{
+  "http-request": {
+    "path": "/orders",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "Idempotency-Key": "payment-rejected"
+    },
+    "body": {
+      "productId": 10,
+      "quantity": 1
+    }
+  },
+  "http-response": {
+    "status": 502,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "code": "PaymentServiceError",
+      "message": "Payment service did not accept the order"
+    }
+  }
+}

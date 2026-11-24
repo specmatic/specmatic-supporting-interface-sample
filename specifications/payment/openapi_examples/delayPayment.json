@@ -1,0 +1,17 @@
+{
+  "http-request": {
+    "path": "/payment/initiate",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json",
+      "Idempotency-Key": "payment-order-payment-timeout"
+    },
+    "body": {
+      "price": 199.5
+    }
+  },
+  "http-response": {
+    "status": 202
+  },
+  "delay-in-milliseconds": 1500
+}
